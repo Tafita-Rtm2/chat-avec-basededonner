@@ -3,37 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot AI</title>
     <link rel="stylesheet" href="styles.css">
+    <title>Inscription & Connexion</title>
 </head>
 <body>
-    <div id="register-container">
-        <h2>Inscription</h2>
-        <p>Veuillez entrer votre email pour vous inscrire :</p>
+    <div class="form-container">
+        <h2>Bienvenue</h2>
+
+        <!-- Formulaire d'inscription -->
         <form id="register-form">
-            <input type="email" id="register-email" placeholder="Entrez votre email" required>
+            <h3>Inscription</h3>
+            <input type="email" id="register-email" placeholder="Votre email" required>
+            <input type="password" id="register-password" placeholder="Votre mot de passe" required>
             <button type="submit">S'inscrire</button>
         </form>
-    </div>
 
-    <div id="login-container" style="display: none;">
-        <h2>Connexion</h2>
-        <p>Entrez votre email pour vous connecter :</p>
+        <!-- Formulaire de connexion -->
         <form id="login-form">
-            <input type="email" id="login-email" placeholder="Entrez votre email" required>
+            <h3>Connexion</h3>
+            <input type="email" id="login-email" placeholder="Votre email" required>
+            <input type="password" id="login-password" placeholder="Votre mot de passe" required>
             <button type="submit">Se connecter</button>
         </form>
     </div>
-
-    <div id="chat-container" style="display: none;">
-        <div class="chat-header">Chatbot</div>
-        <div class="chat-messages" id="chat-messages"></div>
-        <form id="chat-form">
-            <input type="text" id="chat-input" placeholder="Tapez un message..." required>
-            <button type="submit">Envoyer</button>
-        </form>
-    </div>
-
     <script src="script.js"></script>
 </body>
 </html>
