@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot AI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="register-container">
+        <h2>Inscription</h2>
+        <p>Veuillez entrer votre email pour vous inscrire :</p>
+        <form id="register-form">
+            <input type="email" id="register-email" placeholder="Entrez votre email" required>
+            <button type="submit">S'inscrire</button>
+        </form>
+    </div>
+
+    <div id="login-container" style="display: none;">
+        <h2>Connexion</h2>
+        <p>Entrez votre email pour vous connecter :</p>
+        <form id="login-form">
+            <input type="email" id="login-email" placeholder="Entrez votre email" required>
+            <button type="submit">Se connecter</button>
+        </form>
+    </div>
+
+    <div id="chat-container" style="display: none;">
+        <div class="chat-header">Chatbot</div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <form id="chat-form">
+            <input type="text" id="chat-input" placeholder="Tapez un message..." required>
+            <button type="submit">Envoyer</button>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
