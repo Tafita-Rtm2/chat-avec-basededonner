@@ -1,92 +1,71 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const bcrypt = require('bcrypt');
 
 const app = express();
-app.use(bodyParser.json());
 app.use(express.static('public'));
+app.use(bodyParser.json());
 
-// Configuration email
+// Simulated database
+let users = [];
+if (fs.existsSync('./database.json')) {
+    users = JSON.parse(fs.readFileSync('./database.json'));
+}
+
+// Nodemailer setup
 const transporter = nodemailer.createTransport({
     service: 'gmail',
-    auth: {
-        user: 'niainatafita85@gmail.com',
-        pass: 'tafitaniaina1206', // Remplacez par le mot de passe
-    },
+    auth: { user: 'your-email@gmail.com', pass: 'your-email-password' }
 });
 
-// Stockage des utilisateurs et conversations
-const users = {}; // { email: { conversations: [] } }
+// Registration
+app.post('/register', async (req, res) => {
+    const { email, password } = req.body;
+    if (users.find(user => user.email === email)) return res.status(400).send('Email déjà utilisé.');
 
-// Inscription
-app.post('/register', (req, res) => {
-    const { email } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    users.push({ email, password: hashedPassword, conversations: [] });
+    fs.writeFileSync('./database.json', JSON.stringify(users));
 
-    if (!email) {
-        return res.status(400).json({ error: 'Email requis.' });
-    }
+    await transporter.sendMail({
+        from: 'your-email@gmail.com',
+        to: 'niainatafita85@gmail.com',
+        subject: 'Nouvel utilisateur inscrit',
+        text: `Email: ${email}`
+    });
 
-    if (!users[email]) {
-        users[email] = { conversations: [] };
-
-        // Envoyer une notification par email
-        transporter.sendMail({
-            from: 'niainatafita85@gmail.com',
-            to: 'niainatafita85@gmail.com',
-            subject: 'Nouvel utilisateur inscrit',
-            text: `Un nouvel utilisateur s'est inscrit : ${email}`,
-        });
-
-        return res.json({ success: true, message: 'Inscription réussie.' });
-    } else {
-        return res.status(400).json({ error: 'Cet utilisateur est déjà inscrit.' });
-    }
+    res.send('Inscription réussie.');
 });
 
-// Connexion
-app.post('/login', (req, res) => {
-    const { email } = req.body;
+// Login
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+    const user = users.find(u => u.email === email);
 
-    if (!email) {
-        return res.status(400).json({ error: 'Email requis.' });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+        return res.status(400).send('Email ou mot de passe incorrect.');
     }
 
-    if (users[email]) {
-        return res.json({ success: true, conversations: users[email].conversations });
-    } else {
-        return res.status(404).json({ error: 'Utilisateur non trouvé.' });
-    }
+    res.send('Connexion réussie.');
 });
 
 // Chat
 app.post('/chat', async (req, res) => {
     const { email, message } = req.body;
+    const user = users.find(u => u.email === email);
 
-    if (!email || !message) {
-        return res.status(400).json({ error: 'Email et message requis.' });
-    }
+    if (!user) return res.status(400).send('Utilisateur non trouvé.');
 
-    if (!users[email]) {
-        return res.status(404).json({ error: 'Utilisateur non trouvé.' });
-    }
+    const response = await fetch(`https://yt-video-production.up.railway.app/gpt4-omni?ask=${encodeURIComponent(message)}&userid=${email}`);
+    const data = await response.json();
 
-    try {
-        const apiResponse = await fetch(
-            `https://yt-video-production.up.railway.app/gpt4-omni?ask=${encodeURIComponent(message)}&userid=1`
-        );
-        const data = await apiResponse.json();
+    user.conversations.push({ from: 'user', message });
+    user.conversations.push({ from: 'bot', message: data.response });
+    fs.writeFileSync('./database.json', JSON.stringify(users));
 
-        const botResponse = data.response || 'Erreur lors de la réponse du bot.';
-        users[email].conversations.push({ author: 'user', message });
-        users[email].conversations.push({ author: 'bot', message: botResponse });
-
-        return res.json({ response: botResponse });
-    } catch (error) {
-        console.error('Erreur API:', error);
-        return res.status(500).json({ error: 'Erreur de communication avec l\'API.' });
-    }
+    res.send({ response: data.response });
 });
 
-// Serveur
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Serveur démarré sur http://localhost:${PORT}`));
+app.listen(3000, () => console.log('Serveur démarré sur http://localhost:3000'));
