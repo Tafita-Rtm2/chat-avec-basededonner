@@ -17,7 +17,7 @@ if (fs.existsSync('./database.json')) {
 // Nodemailer setup
 const transporter = nodemailer.createTransport({
     service: 'gmail',
-    auth: { user: 'your-email@gmail.com', pass: 'your-email-password' }
+    auth: { user: 'niainatafita85@gmail.com', pass: 'tafitaniaina1206' }
 });
 
 // Registration
